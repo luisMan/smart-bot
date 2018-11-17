@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "189616993881",
+    "firebase_url": "https://smartcane-249a0.firebaseio.com",
+    "project_id": "smartcane-249a0",
+    "storage_bucket": "smartcane-249a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189616993881:android:567ac4dd5db9b7b1",
+        "android_client_info": {
+          "package_name": "hacks.lehmantech.com.notifybot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "189616993881-o245mkm5430tiikqr7lamgfncon6p3eg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hacks.lehmantech.com.notifybot",
+            "certificate_hash": "055eafa40b9663efb576f047519137c9162b9640"
+          }
+        },
+        {
+          "client_id": "189616993881-5m6bkp4c9437e37cf5t1l3efdjqknn3c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoN165aFPwwqzNcmYqWrXBaw2thzTMBac"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "189616993881-5m6bkp4c9437e37cf5t1l3efdjqknn3c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
