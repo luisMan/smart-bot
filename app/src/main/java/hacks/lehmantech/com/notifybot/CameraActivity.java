@@ -56,6 +56,14 @@ import com.google.api.services.vision.v1.model.EntityAnnotation;
 import com.google.api.services.vision.v1.model.FaceAnnotation;
 import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -64,11 +72,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import hacks.lehmantech.com.firebase.ObjectPojo;
 
 public class CameraActivity extends AppCompatActivity {
 
@@ -99,6 +111,13 @@ public class CameraActivity extends AppCompatActivity {
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimension;
     private TextToSpeechSingleton speech;
+
+
+    //our firebase reference to store visual data for futere reference
+    private DatabaseReference mDatabase;
+    private StorageReference mStorage;
+
+
 
 
 
@@ -166,6 +185,26 @@ public class CameraActivity extends AppCompatActivity {
         //lets instantiate the speech singleton
         speech =  new TextToSpeechSingleton(this);
 
+
+        //lets instantiate the firebase reference for the database
+        mDatabase = FirebaseDatabase.getInstance().getReference("objects");
+
+        mDatabase.keepSynced(true);
+
+        mDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        //lets get a reference to the firebase storage
+        mStorage = FirebaseStorage.getInstance().getReference("person");
 
 
     }
@@ -423,7 +462,7 @@ public class CameraActivity extends AppCompatActivity {
    //resize the image bitmap
     public Bitmap resizeBitmap(Bitmap bitmap) {
 
-        int maxDimension = 256;
+        int maxDimension = 296;
         int originalWidth = bitmap.getWidth();
         int originalHeight = bitmap.getHeight();
         int resizedWidth = maxDimension;
@@ -442,6 +481,7 @@ public class CameraActivity extends AppCompatActivity {
         return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
     }
 
+    //google text label detection and image detection method
     @SuppressLint("StaticFieldLeak")
     private void callCloudVision(final Image img_log) throws IOException {
         mProgressDialog = ProgressDialog.show(this, null,"Scanning image with Vision API...", true);
@@ -504,8 +544,15 @@ public class CameraActivity extends AppCompatActivity {
         StringBuilder message = new StringBuilder("");
         StringBuilder toSpeak  =  new StringBuilder("");
         List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
+        String best_word_to_describe_Object = "";
         if (labels != null) {
+            float max = 0.1f;
             for (EntityAnnotation label : labels) {
+                if(label.getScore() >  max )
+                {
+                    max   =  label.getScore();
+                    best_word_to_describe_Object =  label.getDescription();
+                }
                 message.append(String.format(Locale.getDefault(), "%.3f: %s",
                         label.getScore(), label.getDescription()));
                 message.append("\n");
@@ -516,6 +563,13 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         speech.speakAtLout(toSpeak.toString());
+        //lets also save this input to the firebase
+        String id = mDatabase.push().getKey();
+
+        String date = DateFormat.getDateInstance().format(new Date());
+        ObjectPojo objectPojo = new ObjectPojo(id,toSpeak.toString(),date);
+        mDatabase.child(id).setValue(objectPojo);
+
         return message.toString();
     }
 
@@ -524,8 +578,10 @@ public class CameraActivity extends AppCompatActivity {
         StringBuilder toSpeak  =  new StringBuilder("");
         List<EntityAnnotation> texts = response.getResponses().get(0)
                 .getTextAnnotations();
+
         if (texts != null) {
             for (EntityAnnotation text : texts) {
+
                 message.append(String.format(Locale.getDefault(), "%s: %s",
                         text.getLocale(), text.getDescription()));
                 message.append("\n");
@@ -535,8 +591,12 @@ public class CameraActivity extends AppCompatActivity {
         } else {
             message.append("nothing\n");
         }
+        speech.speakAtLout(message.toString());
+        String id = mDatabase.push().getKey();
 
-        speech.speakAtLout(toSpeak.toString());
+        String date = DateFormat.getDateInstance().format(new Date());
+        ObjectPojo objectPojo = new ObjectPojo(id,toSpeak.toString(),date);
+        mDatabase.child(id).setValue(objectPojo);
         return message.toString();
     }
 

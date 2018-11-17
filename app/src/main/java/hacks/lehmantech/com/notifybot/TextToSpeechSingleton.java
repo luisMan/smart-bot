@@ -34,7 +34,10 @@ public class TextToSpeechSingleton {
     }
 
     public void onPause(){
-        
+       if(speech != null){
+           speech.stop();
+           speech.shutdown();
+       }
     }
 
 

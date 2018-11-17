@@ -26,7 +26,20 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    implementation 'com.google.firebase:firebase-core:16.0.1'
+
+    implementation 'com.google.firebase:firebase-core:16.0.4'
+    //include the firebase api for authentication and storage
+    implementation 'com.google.firebase:firebase-storage:16.0.4'
+
+    implementation 'com.google.firebase:firebase-auth:16.0.5'
+
+    implementation 'com.firebase:firebase-client-android:2.5.2'
+
+    implementation 'com.google.firebase:firebase-database:16.0.4'
+
+    //4.2.1 0.4.0
+    implementation 'com.firebaseui:firebase-ui-database:0.4.0'
+
     implementation 'com.google.api-client:google-api-client-android:1.22.0'
     implementation 'com.google.apis:google-api-services-vision:v1-rev357-1.22.0'
     implementation 'com.google.code.findbugs:jsr305:2.0.1'
@@ -40,6 +53,9 @@ dependencies {
     implementation ('com.google.http-client:google-http-client-gson:1.20.0') {
         exclude module: 'httpclient'
     }
+
+
+
 }
 
 apply plugin: 'com.google.gms.google-services'
