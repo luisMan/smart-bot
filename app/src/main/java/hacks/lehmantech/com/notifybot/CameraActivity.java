@@ -98,7 +98,9 @@ public class CameraActivity extends AppCompatActivity {
     private CameraCaptureSession cameraCaptureSessions;
     private CaptureRequest.Builder captureRequestBuilder;
     private Size imageDimension;
-    private ImageReader imageReader;
+    private TextToSpeechSingleton speech;
+
+
 
     //Save to FILE
     private File file;
@@ -159,6 +161,10 @@ public class CameraActivity extends AppCompatActivity {
 
         //let build the vision instance
         vision = visionBuilder.build();
+
+
+        //lets instantiate the speech singleton
+        speech =  new TextToSpeechSingleton(this);
 
 
 
@@ -496,22 +502,26 @@ public class CameraActivity extends AppCompatActivity {
 
     private String getDetectedLabels(BatchAnnotateImagesResponse response){
         StringBuilder message = new StringBuilder("");
+        StringBuilder toSpeak  =  new StringBuilder("");
         List<EntityAnnotation> labels = response.getResponses().get(0).getLabelAnnotations();
         if (labels != null) {
             for (EntityAnnotation label : labels) {
                 message.append(String.format(Locale.getDefault(), "%.3f: %s",
                         label.getScore(), label.getDescription()));
                 message.append("\n");
+                toSpeak.append(label.getDescription());
             }
         } else {
             message.append("nothing\n");
         }
 
+        speech.speakAtLout(toSpeak.toString());
         return message.toString();
     }
 
     private String getDetectedTexts(BatchAnnotateImagesResponse response){
         StringBuilder message = new StringBuilder("");
+        StringBuilder toSpeak  =  new StringBuilder("");
         List<EntityAnnotation> texts = response.getResponses().get(0)
                 .getTextAnnotations();
         if (texts != null) {
@@ -519,11 +529,14 @@ public class CameraActivity extends AppCompatActivity {
                 message.append(String.format(Locale.getDefault(), "%s: %s",
                         text.getLocale(), text.getDescription()));
                 message.append("\n");
+                toSpeak.append(text.getDescription());
+
             }
         } else {
             message.append("nothing\n");
         }
 
+        speech.speakAtLout(toSpeak.toString());
         return message.toString();
     }
 
